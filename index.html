@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MedLIS Applications</title>
+  
+  <!-- Q-Pulse index (loaded, but it will be started at the end of <body>) -->
+  <script src="QPulse.js" defer></script>
+
+  <!-- Your existing app UI -->
+  <script src="apps.js" defer></script>
+  
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.QPulse && typeof window.QPulse.renderIndex === 'function') {
+      window.QPulse.renderIndex('qpulseIndex');
+    } else {
+      console.warn('QPulse.js not loaded (check filename/case/path).');
+    }
+  });
+</script>
+
+
+  
+
+  <style>
+  /* Reserve space so the app grid never sits under the search bars */
+#mainScroll {
+  padding-top: 130px;   /* adjust between 120–150px if needed */
+  box-sizing: border-box;
+}
+
+  
+    body {
+      background: #ececec;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .page-frame {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border: 8px solid #7d2ea8;
+      box-shadow: inset 0 0 0 8px #00b3a0, inset 0 0 0 16px #00b3a0;
+      border-radius: 16px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 30px;
+    }
+    h1 {
+      font-size: 36px;
+      color: #333;
+      margin: 0 0 30px 0;
+      border-bottom: 3px solid #6a11cb;
+      padding-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    .grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+- overflow-y: auto;
++ overflow-y: visible;
+  padding-bottom: 20px;
+}
+
+    .app-icon {
+      width: 140px;
+      padding: 20px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: box-shadow .3s;
+    }
+    .app-icon:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .app-icon img {
+      width:100px; height:100px;
+      object-fit:contain;
+      border-radius:8px;
+      background:#fff;
+      padding:5px;
+      transition:transform .2s;
+    }
+    .app-icon img:hover { transform:scale(1.1); }
+    .app-name {
+      margin-top:8px;
+      font-size:14px;
+      color:#444;
+      font-weight:bold;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal.fade-out { animation: fadeOutBackdrop .4s ease-in forwards; }
+    @keyframes fadeOutBackdrop {
+      from { background: rgba(0,0,0,0.7); }
+      to   { background: rgba(0,0,0,0); }
+    }
+    .modal-content {
+      position: relative;
+      background: #fff;
+      padding: 40px 50px;
+      border-radius: 12px;
+      width: 85%; max-width:1100px; max-height:90%; overflow-y:auto;
+      border:6px solid #b39ddb;
+      box-shadow:0 10px 40px rgba(0,0,0,0.6);
+      display:flex;
+      gap:20px;
+      text-align:left;
+      animation: expandFadeIn .5s ease-out;
+      transform-origin: top center;
+    }
+    .modal-content.shrink { animation: shrinkFadeOut .4s ease-in forwards; }
+    @keyframes expandFadeIn {
+      from { opacity:0; transform: scale(.7) translateY(-20px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+    @keyframes shrinkFadeOut {
+      from { opacity:1; transform: scale(1) translateY(0); }
+      to   { opacity:0; transform: scale(.7) translateY(-20px); }
+    }
+    .modal-body { flex:1; }
+    .modal-icon { flex-shrink:0; display:flex; align-items:start; }
+    .modal-icon img { width:120px; height:120px; object-fit:contain; border-radius:8px; background:#fff; padding:5px; }
+    .modal-header { display:flex; flex-direction:column; align-items:flex-start; margin-bottom:30px; }
+    #modalLogo { width:180px; margin-bottom:30px; }
+    #appTitle { font-size:42px; margin:0; color:#001f3f; }
+    .close { position:absolute; top:15px; right:20px; font-size:36px; font-weight:bold; color:#b39ddb; cursor:pointer; transition:color .2s; }
+    .close:hover { color:#7e57c2; }
+    #appDescription { font-size:36px; line-height:1.6; color:#222; margin-bottom:0; }
+    #moreInfoBtn {
+      position:absolute;
+      bottom:24px;
+      right:24px;
+      padding:12px 24px;
+      font-size:18px;
+      background:#7d2ea8;
+      color:#fff;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      display:none;
+      box-shadow:0 4px 8px rgba(0,0,0,0.2);
+      transition:background .2s;
+      z-index:1001;
+    }
+    #moreInfoBtn:hover { background:#693192; }
+    #moreInfoModal { z-index:1100; }
+    #moreInfoText { font-size:1.3em; color:#333; }
+
+    /* Hide Q-Pulse index until user opens it */
+    #qpulseIndex { display: none; width: 100%; margin-top: 18px; }
+
+  </style>
+</head>
+<body>
+  <div class="page-frame">
+    <h1>MedLIS Applications</h1>
+	
+<!-- Q-Pulse-->
+
+<div id="mainScroll" style="flex:1; width:100%; overflow-y:auto;">
+  <div class="grid" id="iconGrid"></div>
+  <div id="qpulseIndex"></div>
+</div>
+
+
+
+  </div>
+
+  <audio id="openSound" src="sounds/OpenWindow.mp3" preload="auto"></audio>
+  <audio id="closeSound" src="sounds/close.mp3"></audio>
+
+  <!-- PRIMARY INFO MODAL -->
+  <div id="infoModal" class="modal">
+    <div class="modal-content" id="modalContent">
+      <span class="close" id="modalClose">&times;</span>
+      <div class="modal-body">
+        <div class="modal-header">
+          <img id="modalLogo" src="images/medlis-logo.png" alt="MedLIS Logo">
+          <h2 id="appTitle"></h2>
+        </div>
+        <p id="appDescription"></p>
+        <p id="appSource" style="font-style: italic; color: #555;"></p>
+      </div>
+      <div class="modal-icon">
+        <img id="appIconModal" src="" alt="App Icon">
+      </div>
+      <button id="moreInfoBtn">More Info</button>
+    </div>
+  </div>
+
+  <!-- SECONDARY “MORE INFO” MODAL -->
+  <div id="moreInfoModal" class="modal">
+    <div class="modal-content" id="moreInfoContent">
+      <span class="close" id="moreInfoClose">&times;</span>
+      <div class="modal-body">
+        <h2 id="moreInfoTitle">More Information</h2>
+        <p id="moreInfoText"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Q-Pulse index AFTER the container exists and DOM is ready -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.QPulse && typeof window.QPulse.renderIndex === 'function') {
+      window.QPulse.renderIndex('qpulseIndex');
+    } else {
+      console.warn('QPulse.js not loaded (check filename/case/path).');
+    }
+  });
+</script>
+</body>
+</html>
